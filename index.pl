@@ -36,12 +36,9 @@ else {
 #retrieve options
 
 #options used to filter files (warning, filters are cumulative)
-#extensions filter
 my @filter_extensions;
-GetOptions ("extension=s" => \@filter_extensions);
-#types filter
 my @filter_types;
-GetOptions ("type=s" => \@filter_types);
+GetOptions("extension=s" => \@filter_extensions, "type=s" => \@filter_types);
 
 #indexation path
 my $path = $uri->path;
@@ -141,10 +138,11 @@ sub indexe {
 		}
 		else {
 			print "\t".$file{"name"};
-			#check if file has a known extension
+			#retrieve file type
 			my $type = ($types{$file{"extension"}}) ? $types{$file{"extension"}} : "unknown";
-			if(grep ($_ eq $file{"extension"}, @filter_extensions) && grep ($_ eq $type, @filter_types)) {
-				#search for doubles
+			#check if file has a known extension and type
+			if((!@filter_extensions || grep ($_ eq $file{"extension"}, @filter_extensions)) && (!@filter_types || grep ($_ eq $type, @filter_types))) {
+				#search for duplicates
 				my $duplicate;
 				if($check_for_duplicate) {
 					#$file{"path"} = q{$path};
