@@ -12,8 +12,8 @@ use AbstractListing::FTP;
 
 @INC = (@INC, ".");
 
-#URI regexp
-my $uri_regexp =~ m|(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?|;
+#URI pattern
+my $uri_pattern = qr"(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?";
 
 #retrieve parameter
 my $parameter = @ARGV[0];
@@ -26,7 +26,7 @@ if(!$parameter) {
 #create URI object
 my $uri;
 #if parameter is a local path, transform it to an URI to normalize parameter management
-if(!$parameter =~ $uri_regexp) {
+if($parameter !~ m|$uri_pattern|) {
 	$uri = URI::file->new($parameter, "unix");
 }
 else {
