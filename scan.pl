@@ -22,24 +22,24 @@ if(!$netmask =~ $netmask_regexp) {
 	exit
 }
 
-reseau_balayage($netmask);
+scan($netmask);
 
-my @machines;
+my @hosts;
 
-sub reseau_balayage {
+sub scan {
 	my $ip = $_[0];
-	#instanciantion de l'objet
-	my $ping = Net::Ping->new();
-	#renvoie la liste des machines presentes sur le reseau en balayant une a une toutes les ip de la plage parametre
+	my $ping = Net::Ping->new("icmp");
+
 	my @date = gmtime(time);
-	print "Scan commence le $date[3]/$date[4]/$date[5] a $date[2]:$date[1]:$date[0]\n";
+	print "Start scan $date[3]/$date[4]/$date[5] a $date[2]:$date[1]:$date[0]\n";
+
 	my @ip = split /\./, $ip;
-	print "IP decompose : $ip[0]:$ip[1]:$ip[2]:$ip[3]\n";
-	#pour chaque partie de l'IP
+	print "Splitted netmask : $ip[0]:$ip[1]:$ip[2]:$ip[3]\n";
+
 	for(my $k = 0; $k < 4; $k++) {
-		#test si la partie de l'IP courante est une *
+		#test if netmask segment is a star
 		if($ip[$k] eq '*') {
-			#parcours de toute les adresses de la plage masquee
+			#try all ip matching netmask
 			for(my $i = 1; $i < 254; $i++) {
 				$ip = "";
 				$ip = ($k eq 0) ? $ip.$i.'.' : $ip.$ip[0].'.';
@@ -47,30 +47,31 @@ sub reseau_balayage {
 				$ip = ($k eq 2) ? $ip.$i.'.' : $ip.$ip[2].'.';
 				$ip = ($k eq 3) ? $ip.$i : $ip.$ip[3];
 				print $ip."...";
-				if($ping->ping($ip,1)) {
-					push(@machines,$ip);
+				if($ping->ping($ip, 1)) {
+					push(@hosts, $ip);
 					print "ok";
 				}
 				else {
-					print "introuvable";
+					print "not reachable";
 				}
 				print "\n";
 			}
 		}
 	}
-	print "scalar(@machines) machine(s) decouverte(s)\n";
-	#destruction de l'objet
+	print "Found scalar(@hosts) hosts\n";
+
 	$ping->close();
-	return @machines;
+	return @hosts;
 }
 
-sub connecte {
+sub try_connection {
 	my $ip = $_[0];
 	my $port = $_[1];
-	#tentative de connexion sur l'ip et le port parametre
+	#TODO
+	#try to connect to the host on the specified port
 }
 
-sub enregistre {
+sub save_hosts {
 	#database connection
 	my $db = DBI->connect(
 		"DBI:mysql:database=$config->{database}->{name};host=$config->{database}->{host};port=$config->{database}->{port}",
@@ -78,8 +79,8 @@ sub enregistre {
 		$config->{database}->{password}
 	) or die "\nUnable to connect with $config->{database}->{host}:$config->{database}->{port}";
 
-	foreach my $machine (@machines) {
-		$db->do("INSERT INTO hosts (name) VALUES ($machine)");
+	foreach my $host (@hosts) {
+		$db->do("INSERT INTO hosts (name) VALUES ($host)");
 	}
 	$db->disconnect();
 }
