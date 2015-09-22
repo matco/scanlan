@@ -132,7 +132,7 @@ sub indexe {
 	my $indexer = $_[0];
 	my $path = $_[1];
 	my @list = $indexer->list($path);
-	#local %types;
+
 	foreach my $element (@list) {
 		my %file = %{$element};
 		if($file{"folder"} == 1) {
@@ -148,7 +148,7 @@ sub indexe {
 				my $duplicate;
 				if($check_for_duplicate) {
 					#$file{"path"} = q{$path};
-					$duplicate = checkDuplicate(\%file);
+					$duplicate = check_duplicate(\%file);
 					#exact same file is already in database
 					if($duplicate == 0) {
 						print " > Already in database";
@@ -179,7 +179,7 @@ sub indexe {
 	undef @list;
 }
 
-sub checkDuplicate {
+sub check_duplicate {
 	my %file = %{$_[0]};
 	#search a file with same name in built list
 	#if(grep ($_ eq $file{"name"}, @all_files)) {
