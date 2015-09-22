@@ -2,10 +2,10 @@
 use strict;
 
 use Config::Tiny;
-use Net::Ping::External qw(ping);
+use Net::Ping;
 
-#netmask regexp
-my $netmask_regexp =~ /((\d{1,3}|\*)\.){3}(\d{1,3}|\*)/;
+#netmask pattern
+my $netmask_pattern = qr"^((\d{1,3}|\*)\.){3}(\d{1,3}|\*)$";
 
 #configuration
 my $config = Config::Tiny->read("config.ini", "utf8");
@@ -17,12 +17,13 @@ if(!$netmask) {
 	exit
 }
 
-if(!$netmask =~ $netmask_regexp) {
+if($netmask !~ m/$netmask_pattern/) {
 	print "Netmask is invalid";
 	exit
 }
 
 scan($netmask);
+save_hosts();
 
 my @hosts;
 
