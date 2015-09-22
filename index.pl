@@ -71,7 +71,7 @@ my $db = DBI->connect(
 	"DBI:mysql:database=$config->{database}->{name};host=$config->{database}->{host};port=$config->{database}->{port}",
 	$config->{database}->{user},
 	$config->{database}->{password}
-) or die "\nUnable to connect with $config->{database}->{host}:$config->{database}->{port} : $db->errstr";
+) or die "\nUnable to connect with $config->{database}->{host}:$config->{database}->{port}";
 
 print "Ok\n";
 
