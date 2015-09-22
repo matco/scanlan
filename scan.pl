@@ -1,6 +1,7 @@
 ﻿#!/usr/bin/perl
 use strict;
 
+use Config::Tiny;
 use Net::Ping::External qw(ping);
 
 #netmask regexp
@@ -21,23 +22,25 @@ if(!$netmask =~ $netmask_regexp) {
 	exit
 }
 
-reseau_balayage($netmask)
+reseau_balayage($netmask);
+
+my @machines;
 
 sub reseau_balayage {
 	my $ip = $_[0];
 	#instanciantion de l'objet
-	$ping = Net::Ping->new();
+	my $ping = Net::Ping->new();
 	#renvoie la liste des machines presentes sur le reseau en balayant une a une toutes les ip de la plage parametre
-	@date = gmtime(time);
+	my @date = gmtime(time);
 	print "Scan commence le $date[3]/$date[4]/$date[5] a $date[2]:$date[1]:$date[0]\n";
-	@ip = split /\./, $ip;
+	my @ip = split /\./, $ip;
 	print "IP decompose : $ip[0]:$ip[1]:$ip[2]:$ip[3]\n";
 	#pour chaque partie de l'IP
-	for($k = 0; $k < 4; $k++) {
+	for(my $k = 0; $k < 4; $k++) {
 		#test si la partie de l'IP courante est une *
 		if($ip[$k] eq '*') {
 			#parcours de toute les adresses de la plage masquee
-			for($i = 1; $i < 254; $i++) {
+			for(my $i = 1; $i < 254; $i++) {
 				$ip = "";
 				$ip = ($k eq 0) ? $ip.$i.'.' : $ip.$ip[0].'.';
 				$ip = ($k eq 1) ? $ip.$i.'.' : $ip.$ip[1].'.';
@@ -55,7 +58,7 @@ sub reseau_balayage {
 			}
 		}
 	}
-	print "scalar($machines) machine(s) decouverte(s)\n";
+	print "scalar(@machines) machine(s) decouverte(s)\n";
 	#destruction de l'objet
 	$ping->close();
 	return @machines;
@@ -73,9 +76,9 @@ sub enregistre {
 		"DBI:mysql:database=$config->{database}->{name};host=$config->{database}->{host};port=$config->{database}->{port}",
 		$config->{database}->{user},
 		$config->{database}->{password}
-	) or die "\nUnable to connect with $config->{database}->{host}:$config->{database}->{port} : $db->errstr";
+	) or die "\nUnable to connect with $config->{database}->{host}:$config->{database}->{port}";
 
-	foreach $machine (@machines) {
+	foreach my $machine (@machines) {
 		$db->do("INSERT INTO hosts (name) VALUES ($machine)");
 	}
 	$db->disconnect();
