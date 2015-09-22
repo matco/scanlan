@@ -1,50 +1,27 @@
 ﻿#!/usr/bin/perl
+use strict;
+
 use Net::Ping::External qw(ping);
+
+#netmask regexp
+my $netmask_regexp =~ /((\d{1,3}|\*)\.){3}(\d{1,3}|\*)/;
 
 #configuration
 my $config = Config::Tiny->read("config.ini", "utf8");
 
-#system 'cls';
-print "*****************************\n";
-print "********    SCLan    ********\n";
-print "*****************************\n";
-print "Mode de scan\n";
-print " 1. Automatique\n";
-print " 2. Balayage\n";
-do {
-	print "Entrer le choix : ";
-	$choix = <STDIN>;
-	chomp($choix);
-}
-while($choix ne '1' and $choix ne '2');
+my $netmask = @ARGV[0];
 
-#scan en mode automatique
-if($choix eq '1') {
-	reseau_auto();
-}
-#scan en mode balayage
-elsif($choix eq '2') {
-	do {
-		print "Masque d'IP (*.*.*.*) : ";
-		$ip = <STDIN>;
-		chomp($ip);
-	}
-	while (!verifip($ip));
-	reseau_balayage($ip);
+if(!$netmask) {
+	print "Netmask is required";
+	exit
 }
 
-#fonctions :
-sub reseau_auto {
-	#renvoie la liste des machines presentes sur le reseau a partir de la commande net view de windows
-	#retour de la fonction net view
-	$machines = `net view`;
-	@machines = $machines =~ /\\\\((?:\w|\-)*)\b/g;
-	#print "Resultat de la commande net view : @machines";
-	foreach $machine (@machines) {
-		print "$machine\n";
-	}
-	return @machines;
+if(!$netmask =~ $netmask_regexp) {
+	print "Netmask is invalid";
+	exit
 }
+
+reseau_balayage($netmask)
 
 sub reseau_balayage {
 	my $ip = $_[0];
@@ -82,12 +59,6 @@ sub reseau_balayage {
 	#destruction de l'objet
 	$ping->close();
 	return @machines;
-}
-
-
-sub verifip {
-	my $ip = $_[0];
-	return $ip =~ /((\d{1,3}|\*)\.){3}(\d{1,3}|\*)/;
 }
 
 sub connecte {
