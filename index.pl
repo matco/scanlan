@@ -34,22 +34,24 @@ else {
 }
 
 #retrieve options
-
-#options used to filter files (warning, filters are cumulative)
+#file filters options (warning, filters are cumulative)
 my @filter_extensions;
 my @filter_types;
-GetOptions("extension=s" => \@filter_extensions, "type=s" => \@filter_types);
+
+#duplicates options
+my $approximation = 0.05;
+
+GetOptions(
+	"extension=s" => \@filter_extensions,
+	"type=s" => \@filter_types,
+	"approximation=i" => \$approximation
+);
+
+#hard coded options
+my $check_for_duplicate = 1;
 
 #indexation path
 my $path = $uri->path;
-print $path;
-
-#other options
-my $approximation = 0.05;
-GetOptions("a=i" => \$approximation);
-
-my $check_for_duplicate = 1;
-GetOptions("-d" => \$check_for_duplicate);
 
 #variable initialization
 my $number_files = 0;
@@ -182,7 +184,7 @@ sub checkDuplicate {
 		return 0;
 	}
 	#search a file with the same name in database
-	$query_duplicate->execute($file{"name"}) or die "\nUnable to check for double in database : $db->errstr";
+	$query_duplicate->execute($file{"name"}) or die "\nUnable to check for duplicate in database : $db->errstr";
 	if(my @other_file = $query_duplicate->fetchrow_array()) {
 		if($other_file[1] == $file{"size"} && $other_file[2] == $file{"path"}) {
 			return -1;
