@@ -103,8 +103,8 @@ print "Indexation terminated";
 
 if($number_files > 0 || $number_indexed_files > 0) {
 	print "\n$number_files files found";
-	print "\n$number_duplicates duplicates found";
-	print "\n$number_indexed_files indexed successfully!\n";
+	print "\n$number_indexed_files files indexed successfully!";
+	print "\n$number_duplicates duplicates found\n";
 }
 else {
 	print "\nNo file found\n";
