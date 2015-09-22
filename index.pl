@@ -58,7 +58,7 @@ my $number_files = 0;
 my $number_indexed_files = 0;
 my $number_duplicates = 0;
 
-my @all_files;
+#my @all_files;
 my $host_id = 1;
 
 #configuration
@@ -149,23 +149,25 @@ sub indexe {
 				if($check_for_duplicate) {
 					#$file{"path"} = q{$path};
 					$duplicate = checkDuplicate(\%file);
-					if($duplicate == -1) {
+					#exact same file is already in database
+					if($duplicate == 0) {
 						print " > Already in database";
 					}
+					#add as duplicate in database
+					elsif($duplicate > 0) {
+						$query_add_duplicate->execute($db->{q{mysql_insertid}}, $duplicate);
+						print " > Duplicate spotted";
+						$number_duplicates++;
+					}
 				}
-				if($check_for_duplicate == 0 || $check_for_duplicate == 1 && $duplicate >= 0) {
+				if($duplicate == -1) {
+					#push(@all_files, $file{"name"});
 					#add file in database
-					push(@all_files, $file{"name"});
 					$query_add_file->execute($file{"name"}, $file{"size"}, $file{"extension"}, $type, $host_id, $path) or die "\nUnable to add file in database : $db->errstr";
 					print " > Indexed";
 					$number_indexed_files++;
 				}
-				#add a duplicate
-				if($check_for_duplicate && $duplicate > 0) {
-					$query_add_duplicate->execute($db->{q{mysql_insertid}}, $duplicate);
-					print " > Duplicate spotted";
-					$number_duplicates++;
-				}
+
 			}
 			else {
 				print " > Not indexed";
@@ -180,20 +182,22 @@ sub indexe {
 sub checkDuplicate {
 	my %file = %{$_[0]};
 	#search a file with same name in built list
-	if(!grep ($_ eq $file{"name"}, @all_files)) {
-		return 0;
-	}
+	#if(grep ($_ eq $file{"name"}, @all_files)) {
+	#	return 0;
+	#}
 	#search a file with the same name in database
 	$query_duplicate->execute($file{"name"}) or die "\nUnable to check for duplicate in database : $db->errstr";
 	if(my @other_file = $query_duplicate->fetchrow_array()) {
 		if($other_file[1] == $file{"size"} && $other_file[2] == $file{"path"}) {
-			return -1;
+			#files are considered the same
+			return 0;
 		}
 		my $min_size = $file{"size"} * (1 - $approximation);
 		my $max_size = $file{"size"} * (1 + $approximation);
 		if($other_file[1] && $other_file[1] > $min_size && $other_file[1] < $max_size) {
+			#files are considered as duplicates
 			return $other_file[0];
 		}
 	}
-	return 0;
+	return -1;
 }
