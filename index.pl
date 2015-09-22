@@ -5,7 +5,7 @@ use Config::Tiny;
 use Getopt::Long;
 use DBI;
 use URI;
-use URI::File;
+use URI::file;
 
 use AbstractListing::HDD;
 use AbstractListing::FTP;
