@@ -13,12 +13,12 @@ my $config = Config::Tiny->read("config.ini", "utf8");
 my $netmask = @ARGV[0];
 
 if(!$netmask) {
-	print "Netmask is required";
+	print "Netmask is required\n";
 	exit
 }
 
 if($netmask !~ m/$netmask_pattern/) {
-	print "Netmask is invalid";
+	print "Netmask is invalid\n";
 	exit
 }
 
@@ -29,13 +29,15 @@ my @hosts;
 
 sub scan {
 	my $ip = $_[0];
-	my $ping = Net::Ping->new("icmp");
+	my $ping = Net::Ping->new();
 
 	my @date = gmtime(time);
-	print "Start scan $date[3]/$date[4]/$date[5] a $date[2]:$date[1]:$date[0]\n";
+	my $month = $date[4] + 1;
+	my $year = $date[5] + 1900;
+	print "Start scan at $date[3]/$month/$year $date[2]:$date[1]:$date[0]\n";
 
 	my @ip = split /\./, $ip;
-	print "Splitted netmask : $ip[0]:$ip[1]:$ip[2]:$ip[3]\n";
+	print "Netmask: $ip[0]:$ip[1]:$ip[2]:$ip[3]\n";
 
 	for(my $k = 0; $k < 4; $k++) {
 		#test if netmask segment is a star
@@ -50,10 +52,10 @@ sub scan {
 				print $ip."...";
 				if($ping->ping($ip, 1)) {
 					push(@hosts, $ip);
-					print "ok";
+					print " > Ok";
 				}
 				else {
-					print "not reachable";
+					print " > Not reachable";
 				}
 				print "\n";
 			}

@@ -19,7 +19,7 @@ my $uri_pattern = qr"(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(
 my $parameter = @ARGV[0];
 
 if(!$parameter) {
-	print "Path or URI is required";
+	print "Path or URI is required\n";
 	exit
 }
 
