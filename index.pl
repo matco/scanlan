@@ -1,16 +1,18 @@
 #!/usr/bin/perl
 use strict;
 
+use Path::Tiny;
 use Config::Tiny;
 use Getopt::Long;
 use DBI;
 use URI;
 use URI::file;
 
+#load local dependencies
+use lib path($0)->absolute->sibling("lib")->stringify;
+
 use AbstractListing::HDD;
 use AbstractListing::FTP;
-
-@INC = (@INC, ".");
 
 #URI pattern
 my $uri_pattern = qr"(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?";

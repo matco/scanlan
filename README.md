@@ -2,6 +2,7 @@
 
 Scripts are written in Perl. Some additional Perl libraries are required. They can be installed using following commands:
 ```
+apt-get install libpath-tiny-perl
 apt-get install libconfig-tiny-perl
 apt-get install liburi-perl
 ```
