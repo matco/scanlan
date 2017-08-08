@@ -21,7 +21,7 @@ host=db_host
 port=db_port
 user=db_user
 password=db_password
-name=scanlan
+name=db_name
 ```
 
 # Indexation script
