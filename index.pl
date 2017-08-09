@@ -46,7 +46,7 @@ my $approximation = 0.05;
 GetOptions(
 	"extension=s" => \@filter_extensions,
 	"type=s" => \@filter_types,
-	"approximation=i" => \$approximation
+	"approximation=f" => \$approximation
 );
 
 #hard coded options
