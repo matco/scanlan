@@ -18,13 +18,15 @@ use AbstractListing::FTP;
 #file filters options (warning, filters are cumulative)
 my @filter_extensions;
 my @filter_types;
-#duplicates options
+#other options
 my $approximation = 0.05;
+my $is_uri = 0;
 
 GetOptions(
 	"extension=s" => \@filter_extensions,
 	"type=s" => \@filter_types,
-	"approximation=f" => \$approximation
+	"approximation=f" => \$approximation,
+	"uri" => \$is_uri
 );
 
 #retrieve parameter (which is untouched)
@@ -37,15 +39,27 @@ if(!$parameter) {
 
 #create URI object
 my $uri;
-#URI pattern
-my $uri_pattern = qr"(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?";
-#if parameter is a local path, transform it to an URI to normalize parameter management
-if($parameter !~ m|$uri_pattern|) {
-	$uri = URI::file->new($parameter, "unix");
-}
-else {
+if($is_uri) {
 	$uri = URI->new($parameter);
 }
+else {
+	#if parameter is a local path, transform it to an URI to normalize parameter management
+	$uri = URI::file->new($parameter, "unix");
+}
+
+#create good indexer according to URI
+my $indexer;
+if($uri->scheme eq "file") {
+	$indexer = AbstractListing::HDD->new();
+}
+elsif($uri->scheme eq "ftp") {
+	$indexer = AbstractListing::FTP->new($uri->host, $uri->port, $uri->user, $uri->password);
+}
+else {
+	print "Scheme $uri->scheme is not supported\n";
+	exit
+}
+$indexer->init();
 
 #hard coded options
 my $check_for_duplicate = 1;
@@ -84,10 +98,6 @@ while(my @type = $query->fetchrow_array()) {
 }
 print "Ok\n";
 
-#create good indexer according to URI
-my $indexer = factory($uri);
-$indexer->init();
-
 my $query_charset = $db->prepare("SET NAMES 'utf8'") or die "\nUnable to set utf-8 charset : $db->errstr";
 $query_charset->execute();
 
@@ -117,16 +127,6 @@ $query_duplicate->finish();
 $db->disconnect();
 
 $indexer->end();
-
-sub factory {
-	my $uri = $_[0];
-	if($uri->scheme eq "ftp") {
-		return AbstractListing::FTP->new($uri->host, $uri->port, $uri->user, $uri->password);
-	}
-	if($uri->scheme eq "file") {
-		return AbstractListing::HDD->new();
-	}
-}
 
 sub indexe {
 	my $indexer = $_[0];

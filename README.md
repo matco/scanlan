@@ -25,17 +25,18 @@ name=db_name
 ```
 
 # Indexation script
-This indexes local files or files from a FTP server. To index local files, simply provide the path to index as a parameter. For FTPs, use an URI, such as ftp://user:password@server:port.
+This indexes files from local file system of from any URI (only FTP is implemented for now). To index local files, simply provide the path to index as a parameter. For URI, use for example "ftp://user:password@server:port".
 
 ## Options
 * extension: filter only files with specified extension.
 * type: filter only files with specified type. List if types is available in table "extension".
 * approximation: when detecting duplicates, this parameters indicates the acceptable difference between file size.
+* uri: specify that the parameter is an URI.
 
 ## Examples
 ```
 perl index.pl --extension=jpg /home/user
 perl index.pl --type=music --extension=ogg --approximation=0.05 /home/user/music
 perl index.pl --extension=html --extension=js --extension=php --extension=css /var/www
-perl index.pl --type==video ftp://user:password@server:port
+perl index.pl --type==video --uri ftp://user:password@server:port
 ```
