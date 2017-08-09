@@ -14,10 +14,20 @@ use lib path($0)->absolute->sibling("lib")->stringify;
 use AbstractListing::HDD;
 use AbstractListing::FTP;
 
-#URI pattern
-my $uri_pattern = qr"(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?";
+#retrieve options
+#file filters options (warning, filters are cumulative)
+my @filter_extensions;
+my @filter_types;
+#duplicates options
+my $approximation = 0.05;
 
-#retrieve parameter
+GetOptions(
+	"extension=s" => \@filter_extensions,
+	"type=s" => \@filter_types,
+	"approximation=f" => \$approximation
+);
+
+#retrieve parameter (which is untouched)
 my $parameter = @ARGV[0];
 
 if(!$parameter) {
@@ -27,6 +37,8 @@ if(!$parameter) {
 
 #create URI object
 my $uri;
+#URI pattern
+my $uri_pattern = qr"(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?";
 #if parameter is a local path, transform it to an URI to normalize parameter management
 if($parameter !~ m|$uri_pattern|) {
 	$uri = URI::file->new($parameter, "unix");
@@ -34,20 +46,6 @@ if($parameter !~ m|$uri_pattern|) {
 else {
 	$uri = URI->new($parameter);
 }
-
-#retrieve options
-#file filters options (warning, filters are cumulative)
-my @filter_extensions;
-my @filter_types;
-
-#duplicates options
-my $approximation = 0.05;
-
-GetOptions(
-	"extension=s" => \@filter_extensions,
-	"type=s" => \@filter_types,
-	"approximation=f" => \$approximation
-);
 
 #hard coded options
 my $check_for_duplicate = 1;
