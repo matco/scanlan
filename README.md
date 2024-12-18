@@ -13,7 +13,7 @@ sudo apt-get install libpath-tiny-perl libconfig-tiny-perl liburi-perl
 
 Then, create the SQL database:
 ```
-mysql -udb_user -pdb_password < scanlan.sql
+mariadb -udb_user -pdb_password < scanlan.sql
 ```
 
 Finally, create a file named `config.ini` at the root of the project with the credentials to connect to the database:

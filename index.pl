@@ -81,7 +81,7 @@ my $config = Config::Tiny->read("config.ini", "utf8");
 #database connection
 print "Opening database connection...";
 my $db = DBI->connect(
-	"DBI:mysql:database=$config->{database}->{name};host=$config->{database}->{host};port=$config->{database}->{port}",
+	"DBI:MariaDB:database=$config->{database}->{name};host=$config->{database}->{host};port=$config->{database}->{port}",
 	$config->{database}->{user},
 	$config->{database}->{password}
 ) or die "\nUnable to connect with $config->{database}->{host}:$config->{database}->{port}";
