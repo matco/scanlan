@@ -8,7 +8,7 @@ In details, Scanlan scans all the computers of a LAN and tries to connect to the
 ## Setup
 First, install required Perl libraries with the following command:
 ```
-sudo apt-get install libpath-tiny-perl libconfig-tiny-perl liburi-perl
+sudo apt-get install libpath-tiny-perl libconfig-tiny-perl liburi-perl libdbi-perl
 ```
 
 Then, create the SQL database:
